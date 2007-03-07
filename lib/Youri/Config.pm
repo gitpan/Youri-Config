@@ -1,4 +1,4 @@
-# $Id$
+# $Id: /mirror/youri/soft/Config/trunk/lib/Youri/Config.pm 2250 2007-03-07T20:58:00.128190Z guillomovitch  $
 package Youri::Config;
 
 =head1 NAME
@@ -82,11 +82,16 @@ use Getopt::Long;
 use File::Spec;
 use Pod::Usage;
 use Carp;
-use version; our $VERSION = qv('0.1.0');
+use version; our $VERSION = qv('0.1.1');
+
+=head2 new(%args)
+
+Creates and returns a new Youri::Config object.
+
+=cut
 
 sub new {
     my ($class, %options) = @_;
-
 
     # command line arguments
     my $args = {
@@ -178,12 +183,27 @@ sub new {
     return $self;
 }
 
+=head1 INSTANCE METHODS
+
+=head2 get_arg($arg)
+
+Returns the command-line argument $arg.
+
+=cut
+
 sub get_arg {
     my ($self, $arg) = @_;
     croak "Not a class method" unless ref $self;
 
     return $self->{_args}->{$arg};
 }
+
+=head2 get_param($param)
+
+Returns the configuration file parameter $param.
+
+=cut
+
 
 sub get_param {
     my ($self, $param) = @_;
