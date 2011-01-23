@@ -1,4 +1,4 @@
-# $Id: /mirror/youri/soft/Config/trunk/lib/Youri/Config.pm 2250 2007-03-07T20:58:00.128190Z guillomovitch  $
+# $Id: Config.pm 2274 2011-01-19 20:22:07Z guillomovitch $
 package Youri::Config;
 
 =head1 NAME
@@ -82,7 +82,7 @@ use Getopt::Long;
 use File::Spec;
 use Pod::Usage;
 use Carp;
-use version; our $VERSION = qv('0.1.1');
+use version; our $VERSION = qv('0.2.1');
 
 =head2 new(%args)
 
@@ -140,39 +140,44 @@ sub new {
             $main_file = $file;
             last;
         }
-        croak 'No config file found, aborting' unless $main_file;
     }
 
     my $params;
-    eval {
-        $params = YAML::AppConfig->new(file => $main_file);
-    };
-    if ($@) {
-        croak "Invalid configuration file $main_file, aborting";
-    }
+    if ($main_file) {
+        eval {
+            $params = YAML::AppConfig->new(file => $main_file);
+        };
+        if ($@) {
+            croak
+                "Invalid configuration file $main_file, aborting. " .
+                "The parser error was:\n" . $@;
+        }
 
-    # process inclusions
-    my $includes = $params->get('includes');
-    if ($includes) {
-        foreach my $include_file (@{$includes}) {
-            # convert relative path to absolute ones
-            $include_file = File::Spec->rel2abs(
-                $include_file, (File::Spec->splitpath($main_file))[1]
-            );
+        # process inclusions
+        my $includes = $params->get('includes');
+        if ($includes) {
+            foreach my $include_file (@{$includes}) {
+                # convert relative path to absolute ones
+                $include_file = File::Spec->rel2abs(
+                    $include_file, (File::Spec->splitpath($main_file))[1]
+                );
 
-            if (! -f $include_file) {
-                warn "Non-existing file $include_file, skipping";
-            } elsif (! -r $include_file) {
-                warn "Non-readable file $include_file, skipping";
-            } else {
-                eval {
-                    $params->merge(file => $include_file);
-                };
-                if ($@) {
-                    carp "Invalid included configuration file $include_file, skipping";
+                if (! -f $include_file) {
+                    warn "Non-existing file $include_file, skipping";
+                } elsif (! -r $include_file) {
+                    warn "Non-readable file $include_file, skipping";
+                } else {
+                    eval {
+                        $params->merge(file => $include_file);
+                    };
+                    if ($@) {
+                        carp "Invalid included configuration file $include_file, skipping";
+                    }
                 }
             }
         }
+    } else {
+        croak 'No config file found, aborting' if $options{mandatory};
     }
 
     my $self = bless {
@@ -209,7 +214,9 @@ sub get_param {
     my ($self, $param) = @_;
     croak "Not a class method" unless ref $self;
 
-    return $self->{_params}->get($param);
+    return $self->{_params} ?
+        $self->{_params}->get($param) : 
+        undef;
 }
 
 =head1 COPYRIGHT AND LICENSE

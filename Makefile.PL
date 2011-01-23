@@ -1,4 +1,4 @@
-# $Id: /mirror/youri/soft/Config/trunk/Makefile.PL 2231 2007-03-05T21:43:04.296916Z guillomovitch  $
+# $Id: Makefile.PL 1501 2007-03-05 21:43:04Z guillomovitch $
 use ExtUtils::MakeMaker;
 use version;
 

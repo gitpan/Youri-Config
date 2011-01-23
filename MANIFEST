@@ -7,4 +7,7 @@ t/kwalitee.t
 t/perlcritic.t
 t/pod-coverage.t
 t/pod.t
+t/prereq.t
+t/test.t
+Youri-Config-0.2.1/META.yml
 META.yml                                 Module meta-data (added by MakeMaker)
